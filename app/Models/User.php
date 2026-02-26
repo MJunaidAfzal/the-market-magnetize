@@ -100,4 +100,33 @@ class User extends Authenticatable
         $this->plainPassword = $value;
         $this->attributes['plain_password'] = $value;
     }
+
+    /**
+     * Get all leads assigned to this user.
+     */
+    public function assignedLeads()
+    {
+        return $this->belongsToMany(Lead::class, 'lead_assign_to_users')
+                    ->withPivot('id', 'assigned_by', 'assigned_at', 'unassigned_at', 'is_active')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get active leads assigned to this user.
+     */
+    public function activeAssignedLeads()
+    {
+        return $this->belongsToMany(Lead::class, 'lead_assign_to_users')
+                    ->wherePivot('is_active', true)
+                    ->withPivot('id', 'assigned_by', 'assigned_at', 'unassigned_at', 'is_active')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get lead assignments for this user.
+     */
+    public function leadAssignments()
+    {
+        return $this->hasMany(LeadAssignToUser::class, 'user_id');
+    }
 }
