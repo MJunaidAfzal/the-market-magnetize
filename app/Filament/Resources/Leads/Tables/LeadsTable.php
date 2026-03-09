@@ -15,6 +15,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Actions\Action;
 
 class LeadsTable
 {
@@ -170,6 +171,14 @@ class LeadsTable
                 //
             ])
             ->recordActions([
+                Action::make('create_order')
+                    ->label('Create Order')
+                    ->tooltip('Create Order from Lead')
+                    ->color('stripe')
+                    ->button()
+                    ->icon('heroicon-o-shopping-cart')
+                    ->url(fn($record) => route('filament.admin.resources.orders.create', ['lead_id' => $record->id]))
+                    ->visible(fn() => $authUser->hasPermissionTo('can-create-leads')),
                 ViewAction::make()
                     ->label('')
                     ->tooltip('View Lead')

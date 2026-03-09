@@ -129,4 +129,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(LeadAssignToUser::class, 'user_id');
     }
+
+    /**
+     * Get all orders assigned to this user.
+     */
+    public function assignedOrders()
+    {
+        return $this->belongsToMany(Order::class, 'order_assignees')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get order assignments for this user.
+     */
+    public function orderAssignments()
+    {
+        return $this->hasMany(OrderAssignee::class, 'user_id');
+    }
 }
