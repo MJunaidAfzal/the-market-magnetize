@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Orders\Tables;
 
+use App\Filament\Resources\OrderDeliveries\OrderDeliveryResource;
+use App\Filament\Resources\OrderPayments\OrderPaymentResource;
+use App\Filament\Resources\OrderRevisions\OrderRevisionResource;
 use App\Models\Lead;
 use App\Models\Order;
 use App\Models\OrderCategory;
@@ -9,12 +12,15 @@ use App\Models\User;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Actions\ActionGroup;
 use Illuminate\Support\Facades\Auth;
 
 class OrdersTable
@@ -85,17 +91,17 @@ class OrdersTable
                     ->formatStateUsing(fn($state) => $state)
                     ->toggleable(),
 
-                BadgeColumn::make('priority')
-                    ->label('Priority')
-                    ->sortable()
-                    ->colors([
-                        'gray' => 'Low',
-                        'info' => 'Medium',
-                        'warning' => 'High',
-                        'danger' => 'Urgent',
-                    ])
-                    ->formatStateUsing(fn($state) => $state)
-                    ->toggleable(),
+                // BadgeColumn::make('priority')
+                //     ->label('Priority')
+                //     ->sortable()
+                //     ->colors([
+                //         'gray' => 'Low',
+                //         'info' => 'Medium',
+                //         'warning' => 'High',
+                //         'danger' => 'Urgent',
+                //     ])
+                //     ->toggleable(isToggledHiddenByDefault: true)
+                //     ->formatStateUsing(fn($state) => $state),
 
                 TextColumn::make('amount')
                     ->label('Amount')
@@ -114,6 +120,7 @@ class OrdersTable
                         'purple' => 'Overdue',
                     ])
                     ->formatStateUsing(fn($state) => $state)
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->toggleable(),
 
                 TextColumn::make('assignees.name')
@@ -131,6 +138,7 @@ class OrdersTable
                     ->searchable()
                     ->color('gray')
                     ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('-'),
 
                 TextColumn::make('due_date')
@@ -139,6 +147,7 @@ class OrdersTable
                     ->sortable()
                     ->color(fn($state) => $state && $state->isPast() ? 'danger' : 'gray')
                     ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->placeholder('-'),
 
                 TextColumn::make('created_at')
@@ -146,6 +155,7 @@ class OrdersTable
                     ->dateTime('M d, Y')
                     ->sortable()
                     ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->color('gray'),
 
                 TextColumn::make('updated_at')
@@ -228,25 +238,51 @@ class OrdersTable
                     }),
             ])
             ->recordActions([
-                ViewAction::make()
+           
+                Action::make('viewDeliveries')
                     ->label('')
-                    ->tooltip('View Order')
+                    ->tooltip('View Order Deliveries')
+                    ->icon('heroicon-s-truck')
+                    ->color('rado')
+                    ->url(fn($record) => route('filament.admin.resources.orders.order-deliveries.index', ['order' => $record->id]))
+                    ->openUrlInNewTab()
+                    ->button(),
+
+                Action::make('viewPayments')
+                    ->label('')
+                    ->tooltip('View Order Payments')
+                    ->icon('heroicon-s-currency-dollar')
+                    ->color('stripe')
+                    ->url(fn($record) => route('filament.admin.resources.orders.order-payments.index', ['order' => $record->id]))
+                    ->openUrlInNewTab()
+                    ->button(),
+
+                Action::make('viewRevisions')
+                    ->label('')
+                    ->tooltip('View Order Revisions')
+                    ->icon('heroicon-s-clipboard-document-list')
+                    ->color('ligi')
+                    ->url(fn($record) => route('filament.admin.resources.orders.order-revisions.index', ['order' => $record->id]))
+                    ->openUrlInNewTab()
+                    ->button(),
+
+         ActionGroup::make([
+              ViewAction::make()
+                    ->label('VIEW')
                     ->color('info')
                     ->slideOver()
-                    ->button()
                     ->visible(fn() => $authUser->hasPermissionTo('can-view-order')),
                 EditAction::make()
-                    ->label('')
-                    ->tooltip('Edit Order')
+                    ->label('EDIT')
                     ->color('warning')
-                    ->button()
                     ->visible(fn() => $authUser->hasPermissionTo('can-edit-order')),
                 DeleteAction::make()
-                    ->label('')
-                    ->tooltip('Delete Order')
+                    ->label('DELETE')
                     ->color('danger')
-                    ->button()
                     ->visible(fn() => $authUser->hasPermissionTo('can-delete-order')),
+            ])
+             ->visible(fn() => $authUser->hasAnyPermission(['can-view-order', 'can-edit-order', 'can-delete-order']))
+             ->color('light'),
             ])
             ->emptyStateActions([
                 //

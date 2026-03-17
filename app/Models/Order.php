@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Order extends Model
@@ -174,6 +175,30 @@ class Order extends Model
     {
         return $this->belongsToMany(User::class, 'order_assignees')
                     ->withTimestamps();
+    }
+
+    /**
+     * Get the order deliveries.
+     */
+    public function orderDeliveries(): HasMany
+    {
+        return $this->hasMany(OrderDelivery::class);
+    }
+
+    /**
+     * Get the order payments.
+     */
+    public function orderPayments(): HasMany
+    {
+        return $this->hasMany(OrderPayment::class);
+    }
+
+    /**
+     * Get the order revisions.
+     */
+    public function orderRevisions(): HasMany
+    {
+        return $this->hasMany(OrderRevision::class);
     }
 
     /**

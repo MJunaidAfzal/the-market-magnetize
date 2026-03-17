@@ -2,6 +2,9 @@
 
 namespace App\Filament\Resources\Orders;
 
+use App\Filament\Resources\Orders\RelationManagers\OrderDeliveriesRelationManager;
+use App\Filament\Resources\Orders\RelationManagers\OrderPaymentsRelationManager;
+use App\Filament\Resources\Orders\RelationManagers\OrderRevisionsRelationManager;
 use App\Filament\Resources\Orders\Pages\CreateOrder;
 use App\Filament\Resources\Orders\Pages\EditOrder;
 use App\Filament\Resources\Orders\Pages\ListOrders;
@@ -64,7 +67,9 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            'orderDeliveries' => OrderDeliveriesRelationManager::class,
+            'orderPayments' => OrderPaymentsRelationManager::class,
+            'orderRevisions' => OrderRevisionsRelationManager::class,
         ];
     }
 
